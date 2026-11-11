@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinSight — Multimodal Financial &amp; Legal Hybrid RAG Platform</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="shell">
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">📊</div>
+        <div>
+          <div class="brand-title">FINSIGHT <span class="v-tag">RRF v2.0</span></div>
+          <div class="brand-sub">Financial &amp; Legal Hybrid RAG</div>
+        </div>
+      </div>
+
+      <div class="nav-label">INTELLIGENCE CONSOLE</div>
+      <nav class="nav-list">
+        <button class="nav-btn active" data-tab="tab-rag">
+          <span>⚡</span>
+          <span>Hybrid RAG &amp; Citations</span>
+        </button>
+        <button class="nav-btn" data-tab="tab-rrf">
+          <span>🧮</span>
+          <span>RRF &amp; Table Extractor</span>
+        </button>
+        <button class="nav-btn" data-tab="tab-corpus">
+          <span>🏛️</span>
+          <span>SEC 10-K / Legal Corpus</span>
+          <span class="pill-cyan" id="navCorpusCount">6</span>
+        </button>
+        <button class="nav-btn" data-tab="tab-ragas">
+          <span>🎯</span>
+          <span>RAGAS Ablation &amp; Ledger</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-meta">
+        <div class="meta-row"><span>Sparse</span><span class="ok">BM25Okapi (k1=1.5)</span></div>
+        <div class="meta-row"><span>Dense</span><span class="ok">Hybrid N-Gram Cosine</span></div>
+        <div class="meta-row"><span>Fusion</span><span class="mono">RRF + Cross-Encoder</span></div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-area">
+      <header class="topbar">
+        <div>
+          <h1 class="page-heading">Multimodal Financial (SEC 10-K / Basel III / RBI) &amp; Legal Hybrid RAG</h1>
+          <span class="sub-badge">Sparse BM25 + Dense Vector Embeddings + Reciprocal Rank Fusion (RRF) + RAGAS Grounding</span>
+        </div>
+        <div class="topbar-right">
+          <div class="online-pill"><span class="dot"></span><span>PORT :8002 ACTIVE</span></div>
+        </div>
+      </header>
+
+      <!-- KPI Ribbon -->
+      <section class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-label">RAGAS FAITHFULNESS</div>
+          <div class="kpi-val green" id="kpiFaithfulness">98.5%</div>
+          <div class="kpi-foot" id="kpiHallucination">100% Verbatim Grounded</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">CONTEXT PRECISION</div>
+          <div class="kpi-val cyan" id="kpiPrecision">96.2%</div>
+          <div class="kpi-foot">Cross-Encoder Top-K SNR</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">ANSWER RELEVANCE</div>
+          <div class="kpi-val blue" id="kpiRelevance">97.4%</div>
+          <div class="kpi-foot">Query-Synthesis Alignment</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">TOP CITED FILING</div>
+          <div class="kpi-val amber" id="kpiTopDoc">SEC-NVDA-10K</div>
+          <div class="kpi-foot" id="kpiTopCE">Rerank Score: 0.982</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">HYBRID RRF LATENCY</div>
+          <div class="kpi-val green" id="kpiLatency">4.8 ms</div>
+          <div class="kpi-foot">BM25 + Dense + Rerank</div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 1: HYBRID RAG & CITATION STUDIO
+           =================================================================== -->
+      <section id="tab-rag" class="tab-pane active">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">🔍 Institutional Financial &amp; Regulatory Query Composer</div>
+              <div class="panel-sub">Select a preset SEC 10-K / Basel III / RBI / Legal query or tune the Hybrid Alpha (&alpha;) slider between Sparse BM25 and Dense Vector Search</div>
+            </div>
+          </div>
+
+          <div class="preset-bar" id="presetBar"></div>
+
+          <form id="ragQueryForm" class="form-stack">
+            <div class="query-bar">
+              <input type="text" id="queryInput" class="input" value="What was NVIDIA FY2025 Data Center revenue growth, GAAP gross margin, and Free Cash Flow in Form 10-K?" required>
+              <button type="submit" id="runRagBtn" class="btn btn-primary">⚡ Execute Hybrid RRF Retrieval</button>
+            </div>
+            <div class="slider-row">
+              <label for="alphaSlider">
+                Hybrid Fusion Balance (&alpha;): <strong id="alphaLabel">0.50 (50% Dense Vector / 50% Sparse BM25)</strong>
+              </label>
+              <input type="range" id="alphaSlider" min="0" max="1" step="0.05" value="0.50" style="width: 280px;">
+            </div>
+          </form>
+        </div>
+
+        <div class="studio-split">
+          <!-- Left: Grounded Answer & Verified Claims -->
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">📑 Citation-Grounded Synthesis &amp; Claim Verification</div>
+                <div class="panel-sub">Every financial figure and legal clause is bound to an audited source filing ID</div>
+              </div>
+            </div>
+            <div id="answerBox" class="answer-card"></div>
+
+            <div class="sub-head">✅ Audited Line-by-Line Claim Grounding (Hallucination Guard)</div>
+            <div id="claimsList" class="findings-list"></div>
+          </div>
+
+          <!-- Right: Top Retrieved Chunks with BM25 vs Dense vs RRF Bars -->
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">🏆 Top-K Hybrid Retrieved Filings (Cross-Encoder Reranked)</div>
+                <div class="panel-sub">Compare Sparse BM25 lexical rank, Dense Cosine rank, and Reciprocal Rank Fusion</div>
+              </div>
+            </div>
+            <div id="chunksList" class="findings-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 2: RRF MATHEMATICAL MATRIX & FINANCIAL TABLE PARSER
+           =================================================================== -->
+      <section id="tab-rrf" class="tab-pane">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">🧮 Reciprocal Rank Fusion (RRF) &amp; Cross-Encoder Scoring Matrix</div>
+              <div class="panel-sub">Formula: <code>RRF(d) = (1 - &alpha;) / (k + rank_BM25(d)) + &alpha; / (k + rank_Dense(d))</code> followed by joint Cross-Encoder reranking</div>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Filing ID</th>
+                <th>Category</th>
+                <th>BM25 Score &amp; Rank</th>
+                <th>Dense Cosine &amp; Rank</th>
+                <th>RRF Score (k=20)</th>
+                <th>Cross-Encoder Rerank</th>
+                <th>Extracted Figures</th>
+              </tr>
+            </thead>
+            <tbody id="rrfMatrixBody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">📋 Multimodal Financial Table Parser (SEC 10-K / Basel III Schedules)</div>
+              <div class="panel-sub">Automatically reconstructs structured GAAP &amp; regulatory capital tables from retrieved filing chunks</div>
+            </div>
+          </div>
+          <div id="extractedTableContainer"></div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 3: SEC 10-K / LEGAL CORPUS & LIVE DOCUMENT INGESTION
+           =================================================================== -->
+      <section id="tab-corpus" class="tab-pane">
+        <div class="studio-split">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">➕ Ingest New Financial Filing or Legal Contract Clause</div>
+                <div class="panel-sub">Instantly indexes into SQLite + BM25 Inverted Index + Dense N-Gram Vector Space</div>
+              </div>
+            </div>
+            <form id="ingestForm" class="form-stack">
+              <div class="row-2">
+                <input type="text" id="docIdInput" class="input" placeholder="Filing ID (e.g. SEC-MSFT-10K-2025)" required>
+                <input type="text" id="docCategoryInput" class="input" value="SEC Form 10-K" required>
+              </div>
+              <div class="row-2">
+                <input type="text" id="docTitleInput" class="input" placeholder="Document Title (e.g. Microsoft FY25 Azure Revenue)" required>
+                <input type="text" id="docSectionInput" class="input" placeholder="Section / Page (e.g. Item 7 • Page 39)" required>
+              </div>
+              <textarea id="docContentInput" class="code-editor" rows="6" placeholder="Paste financial disclosure text or Markdown table here..." required></textarea>
+              <button type="submit" class="btn btn-primary">📥 Index Filing into Hybrid RAG Engine</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">🏛️ Indexed Institutional Corpus (<span id="corpusTotalSpan">6</span> Filings)</div>
+                <div class="panel-sub">SEC Form 10-K, Basel III Pillar 3, RBI Digital Lending Circulars, and SaaS MSAs</div>
+              </div>
+            </div>
+            <div id="corpusCardsBox" class="findings-list" style="max-height: 420px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           TAB 4: RAGAS BENCHMARK ABLATION & QUERY LEDGER
+           =================================================================== -->
+      <section id="tab-ragas" class="tab-pane">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">🎯 Retrieval Architecture Ablation Study (Dense vs. Sparse BM25 vs. Hybrid RRF)</div>
+              <div class="panel-sub">Demonstrates why Hybrid RRF + Cross-Encoder Reranking outperforms single-vector Naive RAG on financial/legal benchmarks</div>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Retrieval Architecture</th>
+                <th>Recall@3</th>
+                <th>MRR (Mean Reciprocal Rank)</th>
+                <th>Exact Clause / Ticker Match</th>
+                <th>RAGAS Faithfulness</th>
+                <th>Architectural Analysis</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkBody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">📜 Persistent SQLite RAG Query Audit Ledger (<code>rag_queries</code>)</div>
+              <div class="panel-sub">Historical trace log with RAGAS Faithfulness, Context Precision, and Answer Relevance</div>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Query ID</th>
+                <th>Analyst Query</th>
+                <th>Top Cited Filing</th>
+                <th>Hybrid &alpha;</th>
+                <th>Faithfulness</th>
+                <th>Precision</th>
+                <th>Relevance</th>
+                <th>Latency</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
